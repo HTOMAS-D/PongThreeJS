@@ -21,16 +21,16 @@ const paddleGeometry = new THREE.BoxGeometry(paddleWidth, paddleHeight, paddleDe
 const paddleMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe:true }); // Red color
 const leftPaddle = new THREE.Mesh(paddleGeometry, paddleMaterial);
 const rightPaddle = new THREE.Mesh(paddleGeometry, paddleMaterial);
-leftPaddle.position.x = -25; 
+leftPaddle.position.x = -35; 
 leftPaddle.position.z = 0; 
 leftPaddle.position.y = 4; 
-rightPaddle.position.x = 25; 
+rightPaddle.position.x = 35; 
 rightPaddle.position.y = 4; 
 rightPaddle.position.z = 0; 
 scene.add(leftPaddle);
 scene.add(rightPaddle);
 
-camera.position.z = 20;
+camera.position.z = 40;
 
 
 const keys = {
@@ -97,8 +97,7 @@ function updateCubePosition() {
     cubePositionX += cubeSpeed * cubeDirectionX;
 
     // Check if the cube reaches the left or right edge of the screen
-    if (cubePositionX >= 35 || cubePositionX <= -35) {
-        // Change the direction when the cube hits the edge
+    if (cubePositionX >= 45 || cubePositionX <= -45) {
         cubeDirectionX *= -1;
     }
 
