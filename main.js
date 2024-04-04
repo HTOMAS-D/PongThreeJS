@@ -232,6 +232,20 @@ function updateRightScoreValue(newScore) {
 updateLeftScoreValue(leftScore);
 updateRightScoreValue(rightScore);
 
+
+const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000});
+const points = [];
+
+points.push( new THREE.Vector3( -45, -16, 0 ) );
+points.push( new THREE.Vector3( -45, 16, 0 ) );
+points.push( new THREE.Vector3( 45, 16, 0 ) );
+points.push( new THREE.Vector3( 45, -16, 0 ) );
+points.push( new THREE.Vector3( -45, -16, 0 ) );
+
+const firstspots = new THREE.BufferGeometry().setFromPoints( points );
+const line = new THREE.Line( firstspots, lineMaterial );
+scene.add(line);
+
 function render() {
   requestAnimationFrame(render);
 
