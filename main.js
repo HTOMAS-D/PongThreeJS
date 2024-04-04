@@ -1,9 +1,12 @@
 import * as THREE from "three";
 import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 import { FontLoader } from "three/addons/loaders/FontLoader.js";
+import { ssrModuleExportsKey } from "vite/runtime";
 import helvetiker_regular from "./static/helvetiker_regular.typeface.json";
 
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x9900ff);
+
 const camera = new THREE.PerspectiveCamera(
   75,
   window.innerWidth / window.innerHeight,
@@ -17,7 +20,10 @@ document.body.appendChild(renderer.domElement);
 
 // Cube
 const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff33, wireframe: true });
+const material = new THREE.MeshBasicMaterial({
+  color: 0x00ff33,
+  wireframe: true,
+});
 const cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
 
@@ -33,7 +39,7 @@ const paddleGeometry = new THREE.BoxGeometry(
 const paddleMaterial = new THREE.MeshBasicMaterial({
   color: 0xff0000,
   wireframe: true,
-}); // Red color
+});
 const leftPaddle = new THREE.Mesh(paddleGeometry, paddleMaterial);
 const rightPaddle = new THREE.Mesh(paddleGeometry, paddleMaterial);
 leftPaddle.position.x = -35;
@@ -45,7 +51,7 @@ rightPaddle.position.z = 0;
 scene.add(leftPaddle);
 scene.add(rightPaddle);
 
-camera.position.z = 40;
+camera.position.set(0, 0, 50);
 
 const keys = {
   up: false,
@@ -79,7 +85,7 @@ document.addEventListener("keyup", (event) => {
 });
 
 function updatePaddles() {
-  const paddleSpeed = 0.1; // Adjust paddle speed as needed
+  const paddleSpeed = 0.2; // Adjust paddle speed as needed
   if (keys.up && rightPaddle.position.y < 12) {
     rightPaddle.position.y += paddleSpeed;
   }
@@ -93,34 +99,45 @@ function updatePaddles() {
     leftPaddle.position.y -= paddleSpeed;
   }
 }
-
-const cubeSpeed = 0.1; // Adjust cube speed as needed
+const cubeSpeed = 0.15; // Adjust cube speed as needed
 let cubeDirectionX = 1; // 1 for right, -1 for left
 let cubeDirectionY = 1; // 1 for up, -1 for down
-let cubePositionX = Math.random() * 20 - 10; // Random initial x position of the cube (-10 to 10)
+let cubePositionX = 0;
 let cubePositionY = Math.random() * 16 - 8; // Random initial y position of the cube (-8 to 8)
 
-function updateCubePosition() {
-  // Move the cube in the x direction
+function resetCubePosition() {
+  cubeDirectionX *= -1;
+  cubeDirectionY = 1;
+  cubePositionX = Math.random() * 20 - 10;
+  cubePositionY = 0;
+  // setTimeout(launchCube, 1000);
+}
+
+function launchCube() {
   cubePositionX += cubeSpeed * cubeDirectionX;
-
-  // Check if the cube reaches the left or right edge of the screen
-  if (cubePositionX >= 45 || cubePositionX <= -45) {
-    cubeDirectionX *= -1;
-  }
-
-  // Move the cube in the y direction
   cubePositionY += cubeSpeed * cubeDirectionY;
-
-  // Check if the cube hits the top or bottom edge of the screen
-  if (cubePositionY >= 15 || cubePositionY <= -15) {
-    // Change the direction when the cube hits the edge
-    cubeDirectionY *= -1;
-  }
-
-  // Update the position of the cube
   cube.position.x = cubePositionX;
   cube.position.y = cubePositionY;
+}
+
+function updateCubePosition() {
+  setTimeout(launchCube, 1000);
+
+  //If theres a goal score
+  if (cubePositionX >= 45) {
+    leftScore++;
+    updateLeftScoreValue(leftScore);
+    resetCubePosition();
+  } else if (cubePositionX <= -45) {
+    rightScore++;
+    updateRightScoreValue(rightScore);
+    resetCubePosition();
+  }
+
+  // TOP AND BOTTOM
+  if (cubePositionY >= 15 || cubePositionY <= -15) {
+    cubeDirectionY *= -1;
+  }
 }
 
 function checkCollision() {
@@ -146,30 +163,74 @@ function checkCollision() {
 }
 
 const loader = new FontLoader();
-console.log(helvetiker_regular);
 const font = loader.parse(helvetiker_regular);
 
-const textGeo = new TextGeometry("que merda", {
-  font: font,
+let leftScore = 0;
+let rightScore = 0;
 
-  size: 2,
-  depth: 1,
-  curveSegments: 12,
+let leftTextMesh;
+let rightTextMesh;
 
-  bevelThickness: 10,
-  bevelSize: 8,
-  bevelOffset: 0,
-  bevelSegments: 5,
-//   bevelEnabled: true,
-});
+function updateLeftScore() {
+  const leftText = new TextGeometry(leftScore.toString(), {
+    font: font,
+    size: 100,
+    depth: 2,
+    curveSegments: 12,
+    bevelThickness: 10,
+    bevelSize: 8,
+    bevelOffset: 0,
+    bevelSegments: 5,
+  });
 
-const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const lefttextMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-const mesh = new THREE.Mesh(textGeo, textMaterial);
-mesh.position.set(-5, 2, -20);
-scene.background = new THREE.Color(0x9900ff)
+  const leftMesh = new THREE.Mesh(leftText, lefttextMaterial);
+  leftMesh.position.set(-200, 275, -600);
 
-scene.add(mesh);
+  if (leftTextMesh) {
+    scene.remove(leftTextMesh);
+  }
+
+  leftTextMesh = leftMesh;
+  scene.add(leftMesh);
+}
+function updateRightScore() {
+  const rightText = new TextGeometry(rightScore.toString(), {
+    font: font,
+    size: 100,
+    depth: 2,
+    curveSegments: 12,
+    bevelThickness: 10,
+    bevelSize: 8,
+    bevelOffset: 0,
+    bevelSegments: 5,
+  });
+
+  const righttextMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+  const rightMesh = new THREE.Mesh(rightText, righttextMaterial);
+  rightMesh.position.set(200, 275, -600);
+
+  if (rightTextMesh) {
+    scene.remove(rightTextMesh);
+  }
+
+  rightTextMesh = rightMesh;
+  scene.add(rightMesh);
+}
+
+function updateLeftScoreValue(newScore) {
+  leftScore = newScore;
+  updateLeftScore();
+}
+function updateRightScoreValue(newScore) {
+  rightScore = newScore;
+  updateRightScore();
+}
+
+updateLeftScoreValue(leftScore);
+updateRightScoreValue(rightScore);
 
 function render() {
   requestAnimationFrame(render);
