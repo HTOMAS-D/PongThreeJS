@@ -17,7 +17,7 @@ document.body.appendChild(renderer.domElement);
 
 // Cube
 const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff33 });
+const material = new THREE.MeshBasicMaterial({ color: 0x00ff33, wireframe: true });
 const cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
 
@@ -149,22 +149,25 @@ const loader = new FontLoader();
 console.log(helvetiker_regular);
 const font = loader.parse(helvetiker_regular);
 
-const textGeo = new TextGeometry("My Text", {
+const textGeo = new TextGeometry("que merda", {
   font: font,
 
-  size: 200,
-  depth: 50,
+  size: 2,
+  depth: 1,
   curveSegments: 12,
 
-  bevelThickness: 2,
-  bevelSize: 5,
-  bevelEnabled: true,
+  bevelThickness: 10,
+  bevelSize: 8,
+  bevelOffset: 0,
+  bevelSegments: 5,
+//   bevelEnabled: true,
 });
 
-const textMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
 const mesh = new THREE.Mesh(textGeo, textMaterial);
-mesh.position.set(1, 1, -100);
+mesh.position.set(-5, 2, -20);
+scene.background = new THREE.Color(0x9900ff)
 
 scene.add(mesh);
 
